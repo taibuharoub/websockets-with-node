@@ -62,7 +62,10 @@ app.use((error, req, res, next) => {
 
 mongoose
   .connect(
-    'mongodb://localhost:27017/websocketsDB'
+    'mongodb://localhost:27017/websocketsDB', {
+      useUnifiedTopology: true,
+      useNewUrlParser: true 
+    }
   )
   .then(result => {
     const server = app.listen(8080);
