@@ -1,29 +1,30 @@
-const path = require('path');
+const path = require("path");
 
-const express = require('express');
-const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
-const multer = require('multer');
+const express = require("express");
+const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
+const multer = require("multer");
+const { v1 } = require("uuid");
 
-const feedRoutes = require('./routes/feed');
-const authRoutes = require('./routes/auth');
+const feedRoutes = require("./routes/feed");
+const authRoutes = require("./routes/auth");
 
 const app = express();
 
 const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'images');
+    cb(null, "images");
   },
   filename: (req, file, cb) => {
-    cb(null, new Date().toISOString() + '-' + file.originalname);
-  }
+    cb(null, v1() + file.originalname);
+  },
 });
 
 const fileFilter = (req, file, cb) => {
   if (
-    file.mimetype === 'image/png' ||
-    file.mimetype === 'image/jpg' ||
-    file.mimetype === 'image/jpeg'
+    file.mimetype === "image/png" ||
+    file.mimetype === "image/jpg" ||
+    file.mimetype === "image/jpeg"
   ) {
     cb(null, true);
   } else {
@@ -34,22 +35,22 @@ const fileFilter = (req, file, cb) => {
 // app.use(bodyParser.urlencoded()); // x-www-form-urlencoded <form>
 app.use(bodyParser.json()); // application/json
 app.use(
-  multer({ storage: fileStorage, fileFilter: fileFilter }).single('image')
+  multer({ storage: fileStorage, fileFilter: fileFilter }).single("image")
 );
-app.use('/images', express.static(path.join(__dirname, 'images')));
+app.use("/images", express.static(path.join(__dirname, "images")));
 
 app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
-    'Access-Control-Allow-Methods',
-    'OPTIONS, GET, POST, PUT, PATCH, DELETE'
+    "Access-Control-Allow-Methods",
+    "OPTIONS, GET, POST, PUT, PATCH, DELETE"
   );
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
   next();
 });
 
-app.use('/feed', feedRoutes);
-app.use('/auth', authRoutes);
+app.use("/api/v1/feed", feedRoutes);
+app.use("/api/v1//auth", authRoutes);
 
 app.use((error, req, res, next) => {
   console.log(error);
@@ -61,13 +62,13 @@ app.use((error, req, res, next) => {
 
 mongoose
   .connect(
-    'mongodb+srv://maximilian:9u4biljMQc4jjqbe@cluster0-ntrwp.mongodb.net/messages?retryWrites=true'
+    "mongodb+srv://maximilian:9u4biljMQc4jjqbe@cluster0-ntrwp.mongodb.net/messages?retryWrites=true"
   )
-  .then(result => {
+  .then((result) => {
     const server = app.listen(8080);
-    const io = require('./socket').init(server);
-    io.on('connection', socket => {
-      console.log('Client connected');
+    const io = require("./socket").init(server);
+    io.on("connection", (socket) => {
+      console.log("Client connected");
     });
   })
-  .catch(err => console.log(err));
+  .catch((err) => console.log(err));
