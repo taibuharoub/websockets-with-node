@@ -33,7 +33,7 @@ const fileFilter = (req, file, cb) => {
 };
 
 // app.use(bodyParser.urlencoded()); // x-www-form-urlencoded <form>
-app.use(bodyParser.json()); // application/json
+app.use(express.json()); // application/json
 app.use(
   multer({ storage: fileStorage, fileFilter: fileFilter }).single('image')
 );
@@ -49,8 +49,8 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/api/v1/feed', feedRoutes);
-app.use('/api/v1/auth', authRoutes);
+app.use('/feed', feedRoutes);
+app.use('/auth', authRoutes);
 
 app.use((error, req, res, next) => {
   console.log(error);
